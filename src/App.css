@@ -1,5 +1,6 @@
-.App {
-  text-align: center;
+label {
+  color: #000000 !important;
+  font-weight: 900 !important;
 }
 
 .App-logo {

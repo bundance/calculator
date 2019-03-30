@@ -3,11 +3,14 @@ import './App.css';
 import Styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 
 
 const CalcUL = Styled.ul`
     width: 350px;
     list-style-type: none;
+    padding-inline-start: 0;
+    margin-block-start: 0;
 `;
 
 const CalcLI = Styled.li`
@@ -23,10 +26,24 @@ const CalculatorButton = Styled(Button)`
     width: ${props => (75 * props.width) + (props.width > 1 ? 10 : 0) }px;
 `;
 
+const CalculatorContainer = Styled(Paper)`
+    float: left;
+    padding: 20px;
+`;
+
+const Display = Styled(TextField)`
+    font-weight: 100px;
+    width: 340px;
+    margin-bottom: 10px !important;
+`;
 
 class App extends Component {
-    handleClick = buttonName => () => {
-        console.log({ buttonName });
+    state = {
+        display: '0'
+    };
+
+    handleClick = display => () => {
+        this.setState({ display })
     };
 
     buttons = [{
@@ -99,13 +116,20 @@ class App extends Component {
               </p>
             </header>
             <div>
-              <Paper>
+              <CalculatorContainer>
+                  <Display
+                      disabled
+                      id="outlined-dense"
+                      label={this.state.display}
+                      margin="dense"
+                      variant="outlined"
+                  />
                   <CalcUL>
                   {this.buttons.map(button =>
                       <CalcLI key={button.name} width={button.width} break={button.break}><CalculatorButton variant="contained" color="primary" width={button.width} onClick={this.handleClick(button.name) }>{button.name}</CalculatorButton></CalcLI>
                   )}
                   </CalcUL>
-              </Paper>
+              </CalculatorContainer>
             </div>
           </div>
         );
