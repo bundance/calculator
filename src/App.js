@@ -4,7 +4,7 @@ import Styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { Machine, interpret } from 'xstate';
+import { interpret } from 'xstate';
 import { calculatorMachine } from './state/calculator/calculator-machine';
 
 const CalcUL = Styled.ul`
@@ -39,19 +39,53 @@ const Display = Styled(TextField)`
 `;
 
 const buttonType = {
-    ACTION: 'action',
-    OPERAND: 'operand',
-    OPERATOR: 'operator'
-}
+    ACTION: 'ACTION',
+    OPERAND: 'OPERAND',
+    OPERATOR: 'OPERATOR'
+};
+
 class App extends Component {
     state = {
+        operand1: 0,
+        operand2: 0,
+        operator: '',
         display: '0',
-        current: calculatorMachine.initialState
+        current: calculatorMachine.initialState,
     };
 
-    service = interpret(calculatorMachine).onTransition(current =>
-        this.setState({ current })
-    );
+    updateDisplay = event => {
+        const updatedDisplay = `${this.state.display}${event.name}`;
+        const display = updatedDisplay.charAt(0) === '0'
+            ? updatedDisplay.slice(1)
+            : updatedDisplay;
+        this.setState({ display });
+    };
+
+    setOperator = event => this.setState({ operator: event.name });
+    setOperand1 = event => this.setState({ operand1: event.name });
+    setOperand2 = event => this.setState({ operand2: event.name });
+
+    calculateResult = event => {
+        switch (this.state.operator) {
+            case '+':
+                this.setState({ display: (Number.parseInt(this.state.operand1) + Number.parseInt(this.state.operand2)).toString() });
+                break;
+            case '-':
+                this.setState({ display: (Number.parseInt(this.state.operand1) - Number.parseInt(this.state.operand2)).toString() });
+                break;
+            case 'X':
+                this.setState({ display: (Number.parseInt(this.state.operand1) * Number.parseInt(this.state.operand2)).toString() });
+                break;
+            case '/':
+                this.setState({ display: (Number.parseInt(this.state.operand1) / Number.parseInt(this.state.operand2)).toString() });
+                break;
+        }
+    };
+
+    runActions = (actions, event) => actions.forEach(action => this[action](event));
+
+    service = interpret(calculatorMachine)
+        .onTransition((current, event) => this.runActions(current.actions, event));
 
     componentDidMount() {
         this.service.start();
@@ -62,8 +96,7 @@ class App extends Component {
     }
 
     handleClick = button => () => {
-        this.service.send(button.type);
-        this.setState({ display: button.name });
+        this.service.send(button);
     };
 
     buttons = [{
@@ -152,7 +185,6 @@ class App extends Component {
     ];
     
     render() {
-        const { send } = this.service;
         return (
           <div className="App">
             <header>
