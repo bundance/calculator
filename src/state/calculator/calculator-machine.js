@@ -1,5 +1,6 @@
 import { Machine } from 'xstate';
 
+
 export const calculatorMachine = Machine({
     id: 'calculator',
     initial: 'operand1',
