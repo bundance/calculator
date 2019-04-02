@@ -40,6 +40,17 @@ npm test
 Launches the test runner in the interactive watch mode.<br>
 
 ## Brief description
-Based on ky work with XState in complex Web apps, I recognised this task as being tailor-made for implementation using a statechart. Accordingly, the code uses React to implement the main UI, and a renderless React component to maintain the state of the calculator in response to the user's inputs.
+Based on my previous work with XState in complex Web apps, I recognised this task as being tailor-made for implementation using a statechart. Accordingly, the code uses React to implement the main UI, and a renderless React component that uses XState and a custom statemachine to maintain the state of the calculator in response to the user's inputs.
 
-The states, transitions and associated actions of the calculator as it responds to the user's inputs are managed by [XState](https://xstate.js.org/), which ensures the calculator doesn't get into an erroneous state. These states and transitions are defined in `state/calculator/calculator-machine.js` 
+The states, transitions and associated actions of the calculator as it responds to the user's inputs are managed by [XState](https://xstate.js.org/), which ensures the calculator does not get into an erroneous state. These states and transitions are defined in `state/calculator/calculator-machine.js` 
+
+## ToDo
+The following is a list of features that still need to be done:
+
+- decimal point not yet implemented
+- working with floating point numbers not yet controlled, and so still subject to JavaScript's vagaries 
+- percentage not yet implemented
+- no guards against divide by zero
+- no ability to make a number negative
+- UI does not display selected operator
+- Equal Experts branding not yet used
