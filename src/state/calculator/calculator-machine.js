@@ -1,18 +1,4 @@
-import { Machine, interpret } from 'xstate';
-
-// This machine is completely decoupled from React
-export const toggleMachine = Machine({
-    id: 'toggle',
-    initial: 'inactive',
-    states: {
-        inactive: {
-            on: { TOGGLE: 'active' }
-        },
-        active: {
-            on: { TOGGLE: 'inactive' }
-        }
-    }
-});
+import { Machine } from 'xstate';
 
 export const calculatorMachine = Machine({
     id: 'calculator',
@@ -20,32 +6,41 @@ export const calculatorMachine = Machine({
     states: {
         operand1: {
             on: {
+                CLEAR:{ target: 'operand1', actions: ['clearOperand1'] },
                 OPERATOR:{ target: 'operator', actions: ['setOperator'] },
-                OPERAND: { target: 'operand1', actions: ['updateDisplay', 'setOperand1'] },
+                OPERAND: { target: 'operand1', actions: ['updateOperand'] },
+                CLEAR_ALL: { target: 'operand1', actions: ['clearAll'] },
             },
         },
         operator: {
             on: {
-                OPERAND: {target: 'operand2', actions: ['setOperand2']},
-            }
+                OPERAND: { target: 'operand2', actions: ['clearDisplay', 'updateOperand'] },
+                CLEAR:{ target: 'operand1', actions: ['clearOperand1', 'clearOperator'] },
+                CLEAR_ALL: { target: 'operand1', actions: ['clearAll'] },
+            },
         },
         operand2: {
             on: {
-                OPERAND: { target: 'operand2', actions: ['updateDisplay', 'setOperand2'] },
-                ACTION: { target: 'displayResult', actions: ['calculateResult'] }
+                OPERAND: { target: 'operand2', actions: ['updateOperand'] },
+                CALCULATE: { target: 'displayResult', actions: ['calculateResult'] },
+                CLEAR:{ target: 'operand2', actions: ['clearOperand2'] },
+                CLEAR_ALL: { target: 'operand1', actions: ['clearAll'] },
             }
         },
         displayResult: {
-            on: { OPERAND: 'operand1' }
+            on: {
+                OPERAND: { target: 'operand1', actions: ['clearAll', 'updateOperand'] }
+            }
         }
     },
 }, {
     actions: {
-        updateDisplay: () => {},
         setOperator: () => {},
         calculateResult: () => {},
         displayResult: () => {},
-        setOperand1: () => {},
-        setOperand2: () => {},
+        updateOperand: () => {},
+        clearAll: () => {},
+        clearOperand1: () => {},
+        clearOperand2: () => {},
     }
 });

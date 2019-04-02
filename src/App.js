@@ -41,51 +41,70 @@ const Display = Styled(TextField)`
 const buttonType = {
     ACTION: 'ACTION',
     OPERAND: 'OPERAND',
-    OPERATOR: 'OPERATOR'
+    OPERATOR: 'OPERATOR',
+    CALCULATE: 'CALCULATE',
+    CLEAR: 'CLEAR',
+    CLEAR_ALL: 'CLEAR_ALL',
 };
 
 class App extends Component {
     state = {
-        operand1: 0,
-        operand2: 0,
+        operand1: '0',
+        operand2: '0',
         operator: '',
         display: '0',
         current: calculatorMachine.initialState,
     };
 
-    updateDisplay = event => {
-        const updatedDisplay = `${this.state.display}${event.name}`;
-        const display = updatedDisplay.charAt(0) === '0'
-            ? updatedDisplay.slice(1)
-            : updatedDisplay;
-        this.setState({ display });
+    formatOperandString = (existingNumber, numberToAppend) => {
+        const operandString = `${existingNumber}${numberToAppend}`;
+        return operandString.charAt(0) === '0'
+            ? operandString.slice(1)
+            : operandString;
     };
 
-    setOperator = event => this.setState({ operator: event.name });
-    setOperand1 = event => this.setState({ operand1: event.name });
-    setOperand2 = event => this.setState({ operand2: event.name });
+    setOperator = (current, event) => ({ operator: event.name });
 
-    calculateResult = event => {
+    clearOperand1 = () => ({ display: '0', operand1: 0 });
+    clearOperand2 = () => ({ display: '0', operand1: 0 });
+    clearOperator = () => ({ operator: '' });
+    clearDisplay = () => ({ display: '0' });
+    clearAll = () => ({
+        operand1: '0',
+        operand2: '0',
+        operator: '',
+        display: '0',
+    });
+
+    updateOperand = (current, event, prevState) => {
+        const updatedValue = this.formatOperandString(prevState[current.value], event.name);
+        return { [current.value]: updatedValue, display: updatedValue };
+    };
+
+    calculateResult = () => {
         switch (this.state.operator) {
             case '+':
-                this.setState({ display: (Number.parseInt(this.state.operand1) + Number.parseInt(this.state.operand2)).toString() });
-                break;
+                return ({ display: (Number.parseInt(this.state.operand1) + Number.parseInt(this.state.operand2)).toString() });
             case '-':
-                this.setState({ display: (Number.parseInt(this.state.operand1) - Number.parseInt(this.state.operand2)).toString() });
-                break;
+                return ({ display: (Number.parseInt(this.state.operand1) - Number.parseInt(this.state.operand2)).toString() });
             case 'X':
-                this.setState({ display: (Number.parseInt(this.state.operand1) * Number.parseInt(this.state.operand2)).toString() });
-                break;
+                return ({ display: (Number.parseInt(this.state.operand1) * Number.parseInt(this.state.operand2)).toString() });
             case '/':
-                this.setState({ display: (Number.parseInt(this.state.operand1) / Number.parseInt(this.state.operand2)).toString() });
-                break;
+                return ({ display: (Number.parseInt(this.state.operand1) / Number.parseInt(this.state.operand2)).toString() });
+            default:
+                return;
         }
     };
 
-    runActions = (actions, event) => actions.forEach(action => this[action](event));
+    runActions = (current, event) => current.actions.reduce((updatedState, action) => ({
+        ...updatedState,
+        ...this[action](current, event, updatedState)
+    }), this.state);
 
     service = interpret(calculatorMachine)
-        .onTransition((current, event) => this.runActions(current.actions, event));
+        .onTransition((current, event) => {
+            this.setState({ ...this.runActions(current, event) });
+        });
 
     componentDidMount() {
         this.service.start();
@@ -101,11 +120,11 @@ class App extends Component {
 
     buttons = [{
         name: 'C',
-        type: buttonType.ACTION,
+        type: buttonType.CLEAR_ALL,
         width: 2,
     }, {
         name: 'CE',
-        type: buttonType.ACTION,
+        type: buttonType.CLEAR,
         width: 1,
     }, {
         id: 'divide',
@@ -174,7 +193,7 @@ class App extends Component {
     }, {
         id: 'equals',
         name: '=',
-        type: buttonType.ACTION,
+        type: buttonType.CALCULATE,
         width: 1,
     }, {
         id: 'percent',
