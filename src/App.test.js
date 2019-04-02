@@ -80,4 +80,82 @@ describe('calculator', () => {
         wrap.find('#idequals').simulate('click');
         expect(wrap.state('display')).toEqual('2');
     });
+
+    // To Do
+    it('should calculate a set percentage of a number', () => {
+        const wrap = shallow(
+            <App />
+        );
+
+        // Test 50% of 8
+        wrap.find('#id5').simulate('click');
+        wrap.find('#id0').simulate('click');
+        wrap.find('#idpercent').simulate('click');
+        wrap.find('#id8').simulate('click');
+        wrap.find('#idequals').simulate('click');
+
+        expect(wrap.state('display')).toEqual('4');
+    });
+
+    it('should handle multiple numbers separated by operators', () => {
+        const wrap = shallow(
+            <App />
+        );
+
+        wrap.find('#id1').simulate('click');
+        wrap.find('#idplus').simulate('click');
+        wrap.find('#id2').simulate('click');
+        wrap.find('#idplus').simulate('click');
+        wrap.find('#id3').simulate('click');
+        wrap.find('#idplus').simulate('click');
+        wrap.find('#id4').simulate('click');
+        wrap.find('#idequals').simulate('click');
+        expect(wrap.state('display')).toEqual('10');
+    });
+
+    it('should reset the operands, operator and display state when Clear All (C) button is pressed', () => {
+        const wrap = shallow(
+            <App />
+        );
+
+        expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '0', operator: '', operand2: '0', display: '0' }));
+
+        wrap.find('#id1').simulate('click');
+        wrap.find('#idplus').simulate('click');
+        wrap.find('#id2').simulate('click');
+
+        expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '1', operator: '+', operand2: '2', display: '2' }));
+        wrap.find('#idC').simulate('click');
+
+        expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '0', operator: '', operand2: '0', display: '0' }));
+    });
+
+    it('should reset operand1 when CE button is pressed', () => {
+        const wrap = shallow(
+            <App />
+        );
+
+        expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '0', operator: '', operand2: '0', display: '0' }));
+
+        wrap.find('#id1').simulate('click');
+        wrap.find('#idCE').simulate('click');
+
+        expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '0', operator: '', operand2: '0', display: '0' }));
+    });
+
+    it('should reset operand2 when CE button is pressed', () => {
+        const wrap = shallow(
+            <App />
+        );
+
+        expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '0', operator: '', operand2: '0', display: '0' }));
+
+        wrap.find('#id1').simulate('click');
+        wrap.find('#idplus').simulate('click');
+        wrap.find('#id2').simulate('click');
+        wrap.find('#idCE').simulate('click');
+
+        expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '1', operator: '+', operand2: '0', display: '0' }));
+    });
+
 });

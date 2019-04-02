@@ -65,8 +65,8 @@ class App extends Component {
 
     setOperator = (current, event) => ({ operator: event.name });
 
-    clearOperand1 = () => ({ display: '0', operand1: 0 });
-    clearOperand2 = () => ({ display: '0', operand1: 0 });
+    clearOperand1 = () => ({ operand1: '0' });
+    clearOperand2 = () => ({ operand2: '0' });
     clearOperator = () => ({ operator: '' });
     clearDisplay = () => ({ display: '0' });
     clearAll = () => ({
@@ -76,23 +76,33 @@ class App extends Component {
         display: '0',
     });
 
+
     updateOperand = (current, event, prevState) => {
         const updatedValue = this.formatOperandString(prevState[current.value], event.name);
         return { [current.value]: updatedValue, display: updatedValue };
     };
 
+    moveResultToOperand1 = () => ({
+        operand1: this.calculateResult()
+    });
+
+    displayResult = () => ({ display: this.calculateResult() });
+
     calculateResult = () => {
         switch (this.state.operator) {
             case '+':
-                return ({ display: (Number.parseInt(this.state.operand1) + Number.parseInt(this.state.operand2)).toString() });
+                return (Number.parseInt(this.state.operand1) + Number.parseInt(this.state.operand2)).toString();
             case '-':
-                return ({ display: (Number.parseInt(this.state.operand1) - Number.parseInt(this.state.operand2)).toString() });
+                return (Number.parseInt(this.state.operand1) - Number.parseInt(this.state.operand2)).toString();
             case 'X':
-                return ({ display: (Number.parseInt(this.state.operand1) * Number.parseInt(this.state.operand2)).toString() });
+                return (Number.parseInt(this.state.operand1) * Number.parseInt(this.state.operand2)).toString();
             case '/':
-                return ({ display: (Number.parseInt(this.state.operand1) / Number.parseInt(this.state.operand2)).toString() });
+                return (Number.parseInt(this.state.operand1) / Number.parseInt(this.state.operand2)).toString();
+            case '%':
+                // ToDo
+                return '';
             default:
-                return;
+                return '';
         }
     };
 
