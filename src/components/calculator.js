@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { CalculatorState } from './calculator-state';
 
+////// CALCULATOR STYLES //////
 const CalcUL = Styled.ul`
     width: 350px;
     list-style-type: none;
@@ -45,6 +46,10 @@ const buttonType = {
     CLEAR_ALL: 'CLEAR_ALL',
 };
 
+/**
+ * Calculator - A presentational component that renders the calculator's UI, passes user input to
+ * CalculatorState, and renders the value determined by CalculatorState
+ */
 export class Calculator extends Component {
     buttons = [{
         name: 'C',

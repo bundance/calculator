@@ -1,6 +1,8 @@
 import { Machine } from 'xstate';
 
-
+// Declare a Finite State Machine, which defines the states that the calculator can be in, and the actions
+// that can happen in each state. XState is used to manage the state transitions upon user input
+// ( see https://xstate.js.org/)
 export const calculatorMachine = Machine({
     id: 'calculator',
     initial: 'operand1',
