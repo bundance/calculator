@@ -28,6 +28,7 @@ const CalculatorButton = Styled(Button)`
 
 const CalculatorContainer = Styled(Paper)`
     float: left;
+    margin: 30px;
     padding: 20px;
 `;
 
@@ -35,6 +36,10 @@ const Display = Styled(TextField)`
     font-weight: 100px;
     width: 340px;
     margin-bottom: 10px !important;
+`;
+
+const StyledCalculator = Styled(Paper)`
+    margin: 30px;
 `;
 
 const buttonType = {
@@ -140,7 +145,12 @@ export class Calculator extends Component {
             <CalculatorState>
                 {(display, onClick) => {
                 return (
-                    <CalculatorContainer>
+                    <CalculatorContainer elevation={3}>
+                        <header className={"App-header"}>
+                            <p>
+                                EqualExperts Calculator
+                            </p>
+                        </header>
                         <Display
                             disabled
                             id="outlined-dense"
