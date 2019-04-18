@@ -42,25 +42,32 @@ export class CalculatorState extends Component {
 
     moveResultToOperand1 = (event, newState, nextState) => ({ operand1: this.calculateResult(), current: nextState });
 
-    displayResult = (event, newState, nextState) => ({ display: this.calculateResult(), current: nextState });
+    displayResult = (event, newState, nextState) => {
+        const result = this.calculateResult();
+        return Number.isNaN(result)
+            ? this.showError()
+            : { display: result, current: nextState };
+    };
 
     calculateResult = () => {
         switch (this.state.operator) {
             case '+':
-                return (Number.parseInt(this.state.operand1) + Number.parseInt(this.state.operand2)).toString();
+                return Number.parseInt(this.state.operand1) + Number.parseInt(this.state.operand2);
             case '-':
-                return (Number.parseInt(this.state.operand1) - Number.parseInt(this.state.operand2)).toString();
+                return Number.parseInt(this.state.operand1) - Number.parseInt(this.state.operand2);
             case 'X':
-                return (Number.parseInt(this.state.operand1) * Number.parseInt(this.state.operand2)).toString();
+                return Number.parseInt(this.state.operand1) * Number.parseInt(this.state.operand2);
             case '/':
-                return (Number.parseInt(this.state.operand1) / Number.parseInt(this.state.operand2)).toString();
+                return Number.parseInt(this.state.operand1) / Number.parseInt(this.state.operand2);
             case '%':
                 // ToDo
-                return '';
+                return Number.NaN;
             default:
-                return '';
+                return Number.NaN;
         }
     };
+
+    showError = () => ({ display: 'ERROR', current: states.ERROR });
 
     processInput = (current, event) => {
         let actions = [];
@@ -85,6 +92,10 @@ export class CalculatorState extends Component {
                         actions = ['clearAll'];
                         nextState = states.OPERAND1;
                         break;
+                    default:
+                        actions = ['showError'];
+                        nextState = states.ERROR;
+                        break;
                 }
                 break;
             case states.OPERATOR:
@@ -100,6 +111,10 @@ export class CalculatorState extends Component {
                     case eventTypes.ON_CLEAR_ALL:
                         actions = ['clearAll'];
                         nextState = states.OPERAND1;
+                        break;
+                    default:
+                        actions = ['showError'];
+                        nextState = states.ERROR;
                         break;
                 }
                 break;
@@ -125,6 +140,10 @@ export class CalculatorState extends Component {
                         actions = ['clearAll'];
                         nextState = states.OPERAND1;
                         break;
+                    default:
+                        actions = ['showError'];
+                        nextState = states.ERROR;
+                        break;
                 }
                 break;
             case states.DISPLAY_RESULT:
@@ -145,7 +164,37 @@ export class CalculatorState extends Component {
                         actions = ['clearAll'];
                         nextState = states.OPERAND1;
                         break;
+                    default:
+                        actions = ['showError'];
+                        nextState = states.ERROR;
+                        break;
                 }
+                break;
+            case states.ERROR:
+                switch (event.eventType) {
+                    case eventTypes.ON_CLEAR:
+                        actions = ['clearAll', 'clearDisplay'];
+                        nextState = states.OPERAND1;
+                        break;
+                    case eventTypes.ON_OPERAND:
+                        actions = ['clearAll', 'updateOperand'];
+                        nextState = states.OPERAND1;
+                        break;
+                    case eventTypes.ON_CLEAR_ALL:
+                        actions = ['clearAll'];
+                        nextState = states.OPERAND1;
+                        break;
+                    default:
+                        actions = ['showError'];
+                        nextState = states.ERROR;
+                        break;
+                }
+                break;
+
+            default:
+                actions = ['showError'];
+                nextState = states.ERROR;
+                break;
         }
 
         return this.runActions(actions, event, nextState);
