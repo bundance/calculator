@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { eventTypes } from '../constants/event-types';
-import { states } from '../constants/calculator-states';
+import { eventTypes } from '../../constants/event-types';
+import { states } from '../../constants/calculator-states';
 
 /**
- * CalculatorState - a renderless component that manages the calculator's state in response to the user's input
+ * CalculatorState - a renderless component that manages the calculator's state in response to the user's input. This
+ * component contains the logic without imposing any styling or rendering constraints.
  */
 
 export class CalculatorState extends Component {
@@ -22,7 +23,7 @@ export class CalculatorState extends Component {
             : operandString;
     };
 
-    setOperator = (event, newState, nextState) => ({ operator: event.name, current: nextState });
+    setOperator = (nextState, event) => ({ operator: event.name, current: nextState });
 
     clearOperand1 = () => ({ operand1: '0' });
     clearOperand2 = () => ({ operand2: '0' });
@@ -35,14 +36,14 @@ export class CalculatorState extends Component {
         display: '0',
     });
 
-    updateOperand = (event, newState, nextState) => {
-        const updatedValue = this.formatOperandString(newState[nextState], event.name);
+    updateOperand = (nextState, event, componentState) => {
+        const updatedValue = this.formatOperandString(componentState[nextState], event.name);
         return { [nextState]: updatedValue, display: updatedValue, current: nextState };
     };
 
-    moveResultToOperand1 = (event, newState, nextState) => ({ operand1: this.calculateResult(), current: nextState });
+    moveResultToOperand1 = nextState => ({ operand1: this.calculateResult(), current: nextState });
 
-    displayResult = (event, newState, nextState) => {
+    displayResult = nextState => {
         const result = this.calculateResult();
         return Number.isNaN(result)
             ? this.showError()
@@ -69,7 +70,7 @@ export class CalculatorState extends Component {
 
     showError = () => ({ display: 'ERROR', current: states.ERROR });
 
-    processInput = (current, event) => {
+    computeUpdatedComponentState = (current, event) => {
         let actions = [];
         let nextState;
 
@@ -201,12 +202,12 @@ export class CalculatorState extends Component {
     };
 
     runActions = (actions, event, nextState) =>
-        actions.reduce((updatedState, action) => ({
-            ...updatedState,
-            ...this[action](event, updatedState, nextState)
+        actions.reduce((updatedComponentState, action) => ({
+            ...updatedComponentState,
+            ...this[action](nextState, event, updatedComponentState)
         }), this.state);
 
-    onClick = button => () => this.setState(this.processInput(this.state.current, button));
+    onClick = button => () => this.setState(this.computeUpdatedComponentState(this.state.current, button));
 
     render() {
         return (

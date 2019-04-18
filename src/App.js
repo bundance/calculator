@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Calculator } from "./components/calculator";
+import { Calculator } from "./components/calculator/calculator";
 import Paper from '@material-ui/core/Paper';
 import './App.css';
 import Styled from 'styled-components';

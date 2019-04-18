@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calculator } from './calculator';
-import { mount } from 'enzyme'
+import { mount } from 'enzyme/build'
 
 describe('calculator', () => {
     it('should change the display when a number button is clicked', () => {
