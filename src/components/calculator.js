@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import Styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import { CalculatorState } from './calculator-state';
+import { eventTypes } from '../constants/event-types';
 
 ////// CALCULATOR STYLES //////
 const CalcUL = Styled.ul`
-    width: 350px;
+    width: 400px;
     list-style-type: none;
     padding-inline-start: 0;
     margin-block-start: 0;
@@ -15,15 +15,19 @@ const CalcUL = Styled.ul`
 
 const CalcLI = Styled.li`
     float: left;
-    width: ${props => (75 * props.width) + (props.width > 1 ? 10 : 0) }px;
-    height: 75px
-    background-color: orange;
-    padding: 5px;
 `;
 
 const CalculatorButton = Styled(Button)`
     height: 75px;
-    width: ${props => (75 * props.width) + (props.width > 1 ? 10 : 0) }px;
+    width: ${props => (100 * props.width)}px;
+    background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%);
+    border: 0;
+    border-radius: 0 !important;
+    box-shadow: 0 3px 5px 2px rgba(255, 105, 135, .3);
+    color: white !important;
+    font-size: 24px !important;
+    height: 48;
+    padding: '0 30px';
 `;
 
 const CalculatorContainer = Styled(Paper)`
@@ -32,24 +36,37 @@ const CalculatorContainer = Styled(Paper)`
     padding: 20px;
 `;
 
-const Display = Styled(TextField)`
-    font-weight: 100px;
-    width: 340px;
+
+const DisplayContainer = Styled('div')`
+    margin-top: 0px;
+    border-radius: 0 !important;
+    width: 400px !important;
+    margin-bottom: -15px;
+    position: relative;
+     
+`;
+
+const Display = Styled('input')`
+    height: 75px;
+    font-size: 40px !important;
+    font-weight: 100;
+    width: 356px;
+    padding: 20px;
     margin-bottom: 10px !important;
+    text-align: right !important;
 `;
 
-const StyledCalculator = Styled(Paper)`
-    margin: 30px;
+const Header = Styled(Paper)`
+    background-color: #1795d4 !important;
+    border-radius: 0 !important;
+    color: white;
+    padding: 30px;
 `;
 
-const buttonType = {
-    ACTION: 'ACTION',
-    OPERAND: 'OPERAND',
-    OPERATOR: 'OPERATOR',
-    CALCULATE: 'CALCULATE',
-    CLEAR: 'CLEAR',
-    CLEAR_ALL: 'CLEAR_ALL',
-};
+const Logo = Styled('img')`
+    width: 150px;
+    height: 40px;
+`;
 
 /**
  * Calculator - A presentational component that renders the calculator's UI, passes user input to
@@ -58,85 +75,85 @@ const buttonType = {
 export class Calculator extends Component {
     buttons = [{
         name: 'C',
-        type: buttonType.CLEAR_ALL,
+        eventType: eventTypes.ON_CLEAR_ALL,
         width: 2,
     }, {
         name: 'CE',
-        type: buttonType.CLEAR,
+        eventType: eventTypes.ON_CLEAR,
         width: 1,
     }, {
         id: 'divide',
         name: '/',
-        type: buttonType.OPERATOR,
+        eventType: eventTypes.ON_OPERATOR,
         width: 1,
     }, {
         name: '7',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         name: '8',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         name: '9',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         name: 'X',
-        type: buttonType.OPERATOR,
+        eventType: eventTypes.ON_OPERATOR,
         width: 1,
     }, {
         name: '4',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         name: '5',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         name: '6',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         id: 'minus',
         name: '-',
-        type: buttonType.OPERATOR,
+        eventType: eventTypes.ON_OPERATOR,
         width: 1,
     }, {
         name: '1',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         name: '2',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         name: '3',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         id: 'plus',
         name: '+',
-        type: buttonType.OPERATOR,
+        eventType: eventTypes.ON_OPERATOR,
         width: 1,
     }, {
         name: '0',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         id: 'point',
         name: '.',
-        type: buttonType.OPERAND,
+        eventType: eventTypes.ON_OPERAND,
         width: 1,
     }, {
         id: 'equals',
         name: '=',
-        type: buttonType.CALCULATE,
+        eventType: eventTypes.ON_CALCULATE,
         width: 1,
     }, {
         id: 'percent',
         name: '%',
-        type: buttonType.OPERATOR,
+        eventType: eventTypes.ON_OPERATOR,
         width: 1,
     }];
 
@@ -146,25 +163,25 @@ export class Calculator extends Component {
                 {(display, onClick) => {
                 return (
                     <CalculatorContainer elevation={3}>
-                        <header className={"App-header"}>
-                            <p>
-                                EqualExperts Calculator
-                            </p>
-                        </header>
-                        <Display
-                            disabled
-                            id="outlined-dense"
-                            label={display}
-                            margin="dense"
-                            variant="outlined"
-                        />
+                        <Header>
+                            <Logo
+                                src="https://www.equalexperts.com/wp-content/themes/equalexperts/assets/logo.svg"
+                                alt="[=] Equal Experts"
+                            />
+                        </Header>
+                        <DisplayContainer>
+                            <Display
+                                id="outlined-dense"
+                                readOnly
+                                value={display}
+                                margin="dense"
+                            />
+                        </DisplayContainer>
                         <CalcUL>
                             {this.buttons.map(button =>
-                                <CalcLI key={button.name} width={button.width} break={button.break}>
+                                <CalcLI key={button.name} width={button.width}>
                                     <CalculatorButton
                                         id={`id${button.id || button.name}`}
-                                        variant="contained"
-                                        color="primary"
                                         width={button.width}
                                         onClick={onClick(button)
                                     }>

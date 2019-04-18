@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { interpret } from 'xstate';
-import { calculatorMachine } from "../state/calculator/calculator-machine";
+import { eventTypes } from '../constants/event-types';
+import { states } from '../constants/calculator-states';
 
 /**
- * CalculatorState - a renderless component that manages the calculator's state in response to the
- * user's input, according to the statechart defined in calculator-machine.js)
+ * CalculatorState - a renderless component that manages the calculator's state in response to the user's input
  */
+
 export class CalculatorState extends Component {
     state = {
         operand1: '0',
         operand2: '0',
         operator: '',
         display: '0',
-        current: calculatorMachine.initialState,
+        current: states.OPERAND1,
     };
 
     formatOperandString = (existingNumber, numberToAppend) => {
@@ -22,7 +22,7 @@ export class CalculatorState extends Component {
             : operandString;
     };
 
-    setOperator = (current, event) => ({ operator: event.name });
+    setOperator = (event, newState, nextState) => ({ operator: event.name, current: nextState });
 
     clearOperand1 = () => ({ operand1: '0' });
     clearOperand2 = () => ({ operand2: '0' });
@@ -35,16 +35,14 @@ export class CalculatorState extends Component {
         display: '0',
     });
 
-    updateOperand = (current, event, prevState) => {
-        const updatedValue = this.formatOperandString(prevState[current.value], event.name);
-        return { [current.value]: updatedValue, display: updatedValue };
+    updateOperand = (event, newState, nextState) => {
+        const updatedValue = this.formatOperandString(newState[nextState], event.name);
+        return { [nextState]: updatedValue, display: updatedValue, current: nextState };
     };
 
-    moveResultToOperand1 = () => ({
-        operand1: this.calculateResult()
-    });
+    moveResultToOperand1 = (event, newState, nextState) => ({ operand1: this.calculateResult(), current: nextState });
 
-    displayResult = () => ({ display: this.calculateResult() });
+    displayResult = (event, newState, nextState) => ({ display: this.calculateResult(), current: nextState });
 
     calculateResult = () => {
         switch (this.state.operator) {
@@ -64,27 +62,102 @@ export class CalculatorState extends Component {
         }
     };
 
-    runActions = (current, event) => current.actions.reduce((updatedState, action) => ({
-        ...updatedState,
-        ...this[action](current, event, updatedState)
-    }), this.state);
+    processInput = (current, event) => {
+        let actions = [];
+        let nextState;
 
-    service = interpret(calculatorMachine)
-        .onTransition((current, event) => {
-            this.setState({ ...this.runActions(current, event) });
-        });
+        switch(current) {
+            case states.OPERAND1:
+                switch (event.eventType) {
+                    case eventTypes.ON_CLEAR:
+                        actions = ['clearOperand1', 'clearDisplay'];
+                        nextState = states.OPERAND1;
+                        break;
+                    case eventTypes.ON_OPERATOR:
+                        actions = ['setOperator'];
+                        nextState = states.OPERATOR;
+                        break;
+                    case eventTypes.ON_OPERAND:
+                        actions = ['updateOperand'];
+                        nextState = states.OPERAND1;
+                        break;
+                    case eventTypes.ON_CLEAR_ALL:
+                        actions = ['clearAll'];
+                        nextState = states.OPERAND1;
+                        break;
+                }
+                break;
+            case states.OPERATOR:
+                switch (event.eventType) {
+                    case eventTypes.ON_OPERAND:
+                        actions = ['clearDisplay', 'updateOperand'];
+                        nextState = states.OPERAND2;
+                        break;
+                    case eventTypes.ON_CLEAR:
+                        actions = ['clearOperand1', 'clearOperator', 'clearDisplay'];
+                        nextState = states.OPERAND1;
+                        break;
+                    case eventTypes.ON_CLEAR_ALL:
+                        actions = ['clearAll'];
+                        nextState = states.OPERAND1;
+                        break;
+                }
+                break;
+            case states.OPERAND2:
+                switch (event.eventType) {
+                    case eventTypes.ON_OPERAND:
+                        actions = ['updateOperand'];
+                        nextState = states.OPERAND2;
+                        break;
+                    case eventTypes.ON_OPERATOR:
+                        actions = ['moveResultToOperand1', 'setOperator', 'clearOperand2'];
+                        nextState = states.OPERAND2;
+                        break;
+                    case eventTypes.ON_CALCULATE:
+                        actions = ['displayResult'];
+                        nextState = states.DISPLAY_RESULT;
+                        break;
+                    case eventTypes.ON_CLEAR:
+                        actions = ['clearOperand2', 'clearDisplay'];
+                        nextState = states.OPERAND2;
+                        break;
+                    case eventTypes.ON_CLEAR_ALL:
+                        actions = ['clearAll'];
+                        nextState = states.OPERAND1;
+                        break;
+                }
+                break;
+            case states.DISPLAY_RESULT:
+                switch (event.eventType) {
+                    case eventTypes.ON_OPERAND:
+                        actions = ['clearAll', 'updateOperand'];
+                        nextState = states.OPERAND1;
+                        break;
+                    case eventTypes.ON_OPERATOR:
+                        actions = ['moveResultToOperand1', 'setOperator', 'clearOperand2'];
+                        nextState = states.OPERAND2;
+                        break;
+                    case eventTypes.ON_CLEAR:
+                        actions = ['clearAll'];
+                        nextState = states.OPERAND1;
+                        break;
+                    case eventTypes.ON_CLEAR_ALL:
+                        actions = ['clearAll'];
+                        nextState = states.OPERAND1;
+                        break;
+                }
+        }
 
-    componentDidMount() {
-        this.service.start();
-    }
-
-    componentWillUnmount() {
-        this.service.stop();
-    }
-
-    onClick = button => () => {
-        this.service.send(button);
+        return this.runActions(actions, event, nextState);
     };
+
+    runActions = (actions, event, nextState) =>
+        actions.reduce((updatedState, action) => ({
+            ...updatedState,
+            ...this[action](event, updatedState, nextState)
+        }), this.state);
+
+    onClick = button => () => this.setState(this.processInput(this.state.current, button));
 
     render() {
         return (

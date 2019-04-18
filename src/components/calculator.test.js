@@ -41,7 +41,7 @@ describe('calculator', () => {
         expect(wrap.state('display')).toEqual('3');
     });
 
-    it('should add multiply two numbers together', () => {
+    it('should multiply two numbers together', () => {
         const wrap = mount(<Calculator />).find('CalculatorState');
 
         wrap.find('button#id2').simulate('click');
@@ -128,5 +128,4 @@ describe('calculator', () => {
 
         expect(wrap.state()).toEqual(expect.objectContaining({ operand1: '1', operator: '+', operand2: '0', display: '0' }));
     });
-
 });
