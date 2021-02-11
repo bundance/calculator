@@ -1,8 +1,14 @@
 import React from 'react';
+import { mount, shallow } from 'enzyme/build'
 import { Calculator } from './calculator';
-import { mount } from 'enzyme/build'
 
+// Integration tests to ensure the calculator calculates correctly when controlled by the UI
 describe('calculator', () => {
+    it('should render and match snapshots', () => {
+        const tree = shallow(<Calculator />);
+        expect(tree).toMatchSnapshot();
+    });
+
     it('should change the display when a number button is clicked', () => {
         const wrap = mount(<Calculator />).find('CalculatorState');
         wrap.find('button#id2').simulate('click');
@@ -88,6 +94,20 @@ describe('calculator', () => {
         wrap.find('button#idequals').simulate('click');
 
         expect(wrap.state('display')).toEqual('10');
+    });
+
+    it('should display ERROR when a NaN result is produced', () => {
+        const wrap = mount(<Calculator />).find('CalculatorState');
+
+        wrap.find('button#id1').simulate('click');
+        wrap.find('button#iddivide').simulate('click');
+        wrap.find('button#id0').simulate('click');
+        wrap.find('button#idequals').simulate('click');
+        wrap.find('button#idX').simulate('click');
+        wrap.find('button#id3').simulate('click');
+        wrap.find('button#idequals').simulate('click');
+
+        expect(wrap.state('display')).toEqual('ERROR');
     });
 
     it('should reset the operands, operator and display state when Clear All (C) button is pressed', () => {

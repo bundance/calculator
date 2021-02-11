@@ -47,7 +47,7 @@ export class CalculatorState extends Component {
         const result = this.calculateResult();
         return Number.isNaN(result)
             ? this.showError()
-            : { display: result, current: nextState };
+            : { display: result.toString(), current: nextState };
     };
 
     calculateResult = () => {
