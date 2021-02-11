@@ -3,10 +3,10 @@ import { interpret } from 'xstate';
 import { calculatorMachine } from "../state/calculator/calculator-machine";
 
 /**
- * CalculatorState - a renderless component that manages the calculator's state in response to the
+ * CalculatorStateMachine - a renderless component that manages the calculator's state in response to the
  * user's input, according to the statechart defined in calculator-machine.js)
  */
-export class CalculatorState extends Component {
+export class CalculatorStateMachine extends Component {
     state = {
         operand1: '0',
         operand2: '0',
@@ -36,6 +36,7 @@ export class CalculatorState extends Component {
     });
 
     updateOperand = (current, event, prevState) => {
+        console.log({current, event, prevState});
         const updatedValue = this.formatOperandString(prevState[current.value], event.name);
         return { [current.value]: updatedValue, display: updatedValue };
     };
